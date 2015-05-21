@@ -1,0 +1,22 @@
+{
+  "name": "RMSClient",
+  "version": "1.0.0",
+  "description": "Client for RMS Restful services",
+  "main": "app.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zSakare/RMSClient.git"
+  },
+  "keywords": [
+    "COMP9322"
+  ],
+  "author": "Albert and Chris",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zSakare/RMSClient/issues"
+  },
+  "homepage": "https://github.com/zSakare/RMSClient"
+}
