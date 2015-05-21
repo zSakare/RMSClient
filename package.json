@@ -18,5 +18,10 @@
   "bugs": {
     "url": "https://github.com/zSakare/RMSClient/issues"
   },
-  "homepage": "https://github.com/zSakare/RMSClient"
+  "homepage": "https://github.com/zSakare/RMSClient",
+  "devDependencies": {
+    "bootstrap": "^3.3.4",
+    "ejs": "^2.3.1",
+    "express": "^4.12.4"
+  }
 }
