@@ -1,6 +1,15 @@
 var request = require('request');
 var when = require('when');
+var nodemailer = require('nodemailer');
 var regos = [];
+
+var transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+        user: 'rmsclientmailer@gmail.com',
+        pass: 'horsecowpassword'
+    }
+});
 
 module.exports = function(app) {
 	app.get('/', function(req,res) {
@@ -23,6 +32,23 @@ module.exports = function(app) {
 					var regoJson = JSON.parse(resBody);
 					var rego = {rego: regoJson.registration.registrationNumber, status: regoJson.status.toUpperCase()};
 					regos.push(rego);
+
+					var mailOptions = {
+					    from: 'RMS Client <rmsclientmailer@gmail.com>',
+					    to: 'sakare@gmail.com',
+					    subject: 'Your Renewal',
+					    text: 'Dear ' + regoJson.registration.driver.lastName + ',\n\nVisit the url here: http://localhost:3000/driver/' + rego.rego + '\n\nCheers,\nRMS'
+					};
+
+					// Mail the user
+					transporter.sendMail(mailOptions, function(error, info){
+					    if(error){
+					        console.log(error);
+					    }else{
+					        console.log('Message sent: ' + info.response);
+					    }
+					});
+
 					deferred.resolve();
 				});
 				promises.push(deferred.promise);
@@ -63,7 +89,6 @@ module.exports = function(app) {
 		}
 
 		request.put('http://localhost:8080/RMSRestfulService/renewal/notice/update?rego=' + req.body.rego + '&status=' + status, function (err, httpResponse, body) {
-			console.log(body);
 			var deferred = when.defer();
 			request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + req.body.rego, function (err, httpResponse, resBody) {
 				var regoJson = JSON.parse(resBody);
@@ -83,7 +108,7 @@ module.exports = function(app) {
 				regos.push(regoToUpdate);
 				deferred.resolve();
 			});
-			
+
 			promises.push(deferred.promise);
 		});
 
@@ -94,5 +119,43 @@ module.exports = function(app) {
 				regos: regos
 			});
 		});
+	});
+
+	app.get('/driver/:rego', function (req, res) {
+		request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + req.param('rego'), function (err, httpResponse, body) {
+			var json = JSON.parse(body);
+			res.render('driver_renewal.html', {
+				renewal: json
+			});
+		});
+	});
+
+	app.post('/process/:rego', function (req, res) {
+		request.put('http://localhost:8080/RMSRestfulService/renewal/notice/update?rego=' + req.param('rego') + '&status=REQUESTED', function (err, httpResponse, body) {
+			var json = JSON.parse(body);
+			res.render('driver_renewal.html', {
+				renewal: json
+			});
+		});
+	});
+
+	app.post('/cancel/:rego', function (req, res) {
+		request.put('http://localhost:8080/RMSRestfulService/renewal/notice/update?rego=' + req.param('rego') + '&status=CANCELLED', function (err, httpResponse, body) {
+			var json = JSON.parse(body);
+			res.render('driver_renewal.html', {
+				renewal: json
+			});
+		});
+	});
+
+	app.post('/delete/:rego', function (req, res) {
+		request.del('http://localhost:8080/RMSRestfulService/renewal/notice/archive?rego=' + req.param('rego'), function (err, httpResponse, body) {
+			console.log('boom');
+			res.render('renewal_archived.html');
+		});
+	});
+
+	app.post('/pay/:rego', function (req, res) {
+		
 	});
 }

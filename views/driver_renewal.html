@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<% include template/header.html %>
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+		        <div class="btn-toolbar pull-right">
+		            <div class="btn-group">
+		                <a href="/" id="driver" type="button" class="btn btn-primary">Officer</a>
+		            </div>
+		        </div>
+				<h2>RMS Renewal Online <small>Driver Check Renewals</small></h2>
+			</div>
+		  	<div class="panel panel-default">
+		  		<div class="panel-heading"><h3>Renewal <small>- <%= renewal.registration.registrationNumber %></small></h3></div>
+			  	<div class="panel-body">
+			  		<h3>Registration:</h3>
+			  		<p><b>Valid Until:</b> <%= renewal.registration.validTill %></p>
+			  		<p><b>Last Registered:</b> <%= renewal.registration.lastRegistered %></p>
+			  		<p><b>Status:</b> <%= renewal.status %></p>
+			  		<br>
+			  		<h3>Driver:</h3>
+			  		<p><b>Name:</b> <%= renewal.registration.driver.firstName %> <%= renewal.registration.driver.lastName %></p>
+			  		<p><b>License Number:</b> <%= renewal.registration.driver.licenseNumber %></p>
+			  		<p><b>Email:</b> <%= renewal.registration.driver.email %></p>
+			  	</div>
+			  	<div id="rego" style="display: none"><%= renewal.registration.registrationNumber %></div>
+			  	<div id="status" style="display: none"><%= renewal.status %></div>
+			</div>
+			<div class="btn-group">
+				<button id="process" class="btn btn-primary" role="button">Process Renewal</button>
+				<button id="cancel" class="btn btn-default" role="button">Cancel Renewal</button>
+				<button id="delete" class="btn btn-default" role="button">Delete Renewal</button>
+				<button id="pay" class="btn btn-primary" role="button">Pay Renewal</button>
+			</div>
+		</div>
+		<% include template/footer.html %>
+		<script>
+			$('button').click(function () {
+				var target = $(this).attr('id');
+				if (target === 'process') {
+					$.post('/process/' + $('#rego').text(), function (data) {
+						$('body').html(data);
+					});
+				} else if (target === 'cancel') {
+					$.post('/cancel/' + $('#rego').text(), function (data) {
+						$('body').html(data);
+					});
+				} else if (target === 'delete') {
+					$.post('/delete/' + $('#rego').text(), function (data) {
+						$('body').html(data);
+					});
+				} else if (target === 'pay') {
+					// open payment modal with cc details.
+					// $.post('/pay' + $('#rego').text(), function (data) {
+					// 	$('body').html(data);
+					// })
+				}
+			});
+		</script>
+	</body>
+</html>
