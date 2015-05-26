@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<% include template/header.html %>
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+		        <div class="btn-toolbar pull-right">
+		            <div class="btn-group">
+		                <a href="/driver" id="driver" type="button" class="btn btn-primary">Driver</a>
+		            </div>
+		        </div>
+				<h2>RMS Renewal Online <small>Officer Check Renewals</small></h2>
+			</div>
+		  	<div class="panel panel-default">
+		  		<div class="panel-heading"><h3>Renewal <small>- <%= renewal.registration.registrationNumber %></small></h3></div>
+			  	<div class="panel-body">
+			  		<h3>Registration:</h3>
+			  		<p><b>Valid Until:</b> <%= renewal.registration.validTill %></p>
+			  		<p><b>Last Registered:</b> <%= renewal.registration.lastRegistered %></p>
+			  		<p><b>Status:</b> <%= renewal.status %></p>
+			  		<br>
+			  		<h3>Driver:</h3>
+			  		<p><b>Name:</b> <%= renewal.registration.driver.firstName %> <%= renewal.registration.driver.lastName %></p>
+			  		<p><b>License Number:</b> <%= renewal.registration.driver.licenseNumber %></p>
+			  		<p><b>Email:</b> <%= renewal.registration.driver.email %></p>
+			  	</div>
+			</div>
+			<a href="/" class="btn btn-primary" role="button">Back</a>
+		</div>
+		<% include template/footer.html %>
+	</body>
+</html>

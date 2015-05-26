@@ -20,8 +20,11 @@
   },
   "homepage": "https://github.com/zSakare/RMSClient",
   "devDependencies": {
+    "body-parser": "^1.12.4",
     "bootstrap": "^3.3.4",
     "ejs": "^2.3.1",
-    "express": "^4.12.4"
+    "express": "^4.12.4",
+    "request": "^2.55.0",
+    "when": "^3.7.3"
   }
 }
