@@ -30,14 +30,13 @@ module.exports = function(app) {
 				var deferred = when.defer();
 				request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + regoId, function (err, httpResponse, resBody) {
 					var regoJson = JSON.parse(resBody);
-					var rego = {rego: regoJson.registration.registrationNumber, status: regoJson.status.toUpperCase()};
-					regos.push(rego);
+					regos.push(regoJson);
 
 					var mailOptions = {
 					    from: 'RMS Client <rmsclientmailer@gmail.com>',
 					    to: 'sakare@gmail.com',
 					    subject: 'Your Renewal',
-					    text: 'Dear ' + regoJson.registration.driver.lastName + ',\n\nVisit the url here: http://localhost:3000/driver/' + rego.rego + '\n\nCheers,\nRMS'
+					    text: 'Dear ' + regoJson.registration.driver.lastName + ',\n\nVisit the url here: http://localhost:3000/driver/' + regoJson.registration.registrationNumber + '\n\nCheers,\nRMS'
 					};
 
 					// Mail the user
@@ -55,8 +54,6 @@ module.exports = function(app) {
 			});
 
 			when.all(promises).then(function () {
-				console.log('All get requests complete');
-				console.log(regos);
 				res.render('index.html', {
 					regos: regos
 				});
@@ -166,7 +163,10 @@ module.exports = function(app) {
 																				+ '&expiry=' + req.body.expiry 
 																				+ '&number=' + req.body.number, 
 		function (err, httpResponse, body) {
-			
+			var json = JSON.parse(body);
+			res.render('renewal_payment.html', {
+				renewal: json
+			});
 		})
 	});
 }
