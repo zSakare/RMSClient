@@ -62,7 +62,8 @@
 								</div>
 								<div id="reject" class="form-group">
 								    <label for="rejection-reason">Rejection Reason</label>
-								    <input type="text" class="form-control" name="reason" id="rejection-reason" placeholder="Reason">
+								    <textarea class="form-control" name="reason" id="rejection-reason" placeholder="Reason">
+								    </textarea>
 								</div>
 								<div id="accept" class="form-group">
 								    <label for="accept-fee">Fee</label>
@@ -113,27 +114,41 @@
 			            	
 			            	xmlDoc = $.parseXML(data.body);
 			            	result = $(xmlDoc).find("result").text();
-			            	details = 'GSCheck: ' + $(xmlDoc).find("GSCheck").text() + '\n' + 
-			            				  	'AgeCheck: ' + $(xmlDoc).find("AgeCheck").text() + '\n' + 
-			            				  	'PSCheck: ' + $(xmlDoc).find("PSCheck").text();
+
+			            	results = {
+				            	'GSCheck' : $(xmlDoc).find("GSCheck").text(),
+				            	'AgeCheck' : $(xmlDoc).find("AgeCheck").text(),
+				            	'PSCheck' : $(xmlDoc).find("PSCheck").text()
+				            }
+
+			            	details = "";
+
+			            	for (var key in results) {
+			            		if(results[key]){
+			            			details += key + ' : ' + results[key] + '\n';
+			            		}          		
+			            	}
+
+			            	details += "Output closed"
 
 			            	console.log(details);
 			            	console.log(result);
 
-                            if (result === 'Accept') {
-                                $('#status[value=accept]').attr('checked','');
-                                $('#status[value=reject]').attr('disabled', 'disabled');
-                                $('#status[value=accept]').click();
-                            } else if (result === 'Reject') {
-                                $('#status[value=reject]').attr('checked','');
-                                $('#status[value=accept]').attr('disabled', 'disabled');
-                                $('#status[value=reject]').click();
-                                $('#rejection-reason').val(details);
-                            } else if (result === 'Error') {
-                                $('#error-message').text(details);
-                            }
-                            
-                            $('#error-message').text(details);
+                    if (result === 'Accept') {
+                        $('#status[value=accept]').attr('checked','');
+                        $('#status[value=reject]').attr('disabled', 'disabled');
+                        $('#status[value=accept]').click();
+                    } else if (result === 'Reject') {
+                        $('#status[value=reject]').attr('checked','');
+                        $('#status[value=accept]').attr('disabled', 'disabled');
+                        $('#status[value=reject]').click();
+                        $('#rejection-reason').val(details);
+                    } else if (result === 'Error') {
+                        $('#error-message').text(details);
+                        $('#rejection-reason').val(details);
+                    }
+                    
+                    $('#error-message').text(details).wrap('<pre />');
 			            },
 					  	error: function(data, status, req) {
 					  		console.log(data);
