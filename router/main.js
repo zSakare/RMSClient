@@ -89,11 +89,10 @@ module.exports = function(app) {
 			var deferred = when.defer();
 			request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + req.body.rego, function (err, httpResponse, resBody) {
 				var regoJson = JSON.parse(resBody);
-				var regoToUpdate = {rego: regoJson.registration.registrationNumber, status: regoJson.status.toUpperCase()};
 				var index = -1;
 
 				regos.forEach(function (rego) {
-					if (rego.rego === req.body.rego) {
+					if (rego.registration.registrationNumber === req.body.rego) {
 						index = regos.indexOf(rego);
 					}
 				});
@@ -102,7 +101,7 @@ module.exports = function(app) {
 					regos.splice(index, 1);
 				}
 
-				regos.push(regoToUpdate);
+				regos.push(regoJson);
 				deferred.resolve();
 			});
 
@@ -159,14 +158,21 @@ module.exports = function(app) {
 
 	app.post('/pay', function (req, res) {
 		request.put('http://localhost:8080/RMSRestfulService/payment/pay?rego=' + req.body.rego 
-																				+ '&name=' + req.body.name 
-																				+ '&expiry=' + req.body.expiry 
-																				+ '&number=' + req.body.number, 
+																				+ '&name=' + req.body.ccName 
+																				+ '&expiry=' + req.body.ccExpiryMonth + '-' + req.body.ccExpiryYear 
+																				+ '&number=' + req.body.ccNumber, 
 		function (err, httpResponse, body) {
 			var json = JSON.parse(body);
 			res.render('renewal_payment.html', {
-				renewal: json
+				payment: json
 			});
 		})
+	});
+
+	app.get('/check/payment/:rego', function (req, res) {
+		request.get('http://localhost:8080/RMSRestfulService/payment/check?rego=' + req.param('rego'), function (err, httpResponse, body) {
+			var json = JSON.parse(body);
+			res.send(json.amount);
+		});
 	});
 }
