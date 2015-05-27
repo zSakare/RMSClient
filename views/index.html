@@ -22,7 +22,11 @@
 					  		<td><a href="/renewal/<%= rego.registration.registrationNumber %>"><%= rego.registration.registrationNumber %></a><td>
 					  		<td><%= rego.status %></td>
 					  		<td align="right"><div class="btn-group" role="group">
-					  			<button id="auto-check-<%= rego.registration.registrationNumber %>" type="button" class="btn btn-default btn-xs">
+					  			<button id="auto-check-<%= rego.registration.registrationNumber %>"
+					  			rnum="<%=rego.registration.registrationNumber%>"
+					  			lname="<%=rego.registration.driver.lastName%>"
+					  			fname="<%=rego.registration.driver.firstName %>"
+					  			type="button" class="btn btn-default btn-xs">
 								  <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
 								</button>
 								<button id="update-status-<%= rego.registration.registrationNumber %>" type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#status-update-modal">
@@ -87,6 +91,10 @@
 						location.reload();
 					});
 				} else if (target.includes('auto-check')) {
+					var lname = $(this).attr('lname');
+					var fname = $(this).attr('fname');
+					var rnum = $(this).attr('rnum');
+					
 
 				} else if (target.includes('update-status')) {
 					var regoId = target.match(/status-(.*)/)[1];
@@ -108,6 +116,7 @@
 					$('#accept').hide();
 				}
 			});
+
 		</script>
 	</body>
 </html>
