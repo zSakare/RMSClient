@@ -14,8 +14,26 @@ var transporter = nodemailer.createTransport({
 
 module.exports = function(app) {
 	app.get('/', function(req,res) {
-		res.render('index.html', {
-			regos: regos
+		var newRegos = [];
+		var promises = [];
+
+		regos.forEach(function (rego) {
+			var deferred = when.defer();
+			request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + rego.registration.registrationNumber, function (err, httpResponse, body) {
+				var json = JSON.parse(body);
+				newRegos.push(json);
+				deferred.resolve();
+			});
+
+			promises.push(deferred.promise);
+		});
+
+		when.all(promises).then(function () {
+			regos = newRegos;
+			console.log(regos);
+			res.render('index.html', {
+				regos: regos
+			});
 		});
 	});
 
@@ -212,36 +230,11 @@ module.exports = function(app) {
 	});
 
 	app.post('/autocheck/:rego', function (req, res) {
-		var promises = [];
 		request.put('http://localhost:8080/RMSRestfulService/renewal/notice/update?rego=' + req.param('rego') + '&status=UNDER_REVIEW', function (err, httpResponse, body) {
-			var deferred = when.defer();
-			request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + req.param('rego'), function (err, httpResponse, resBody) {
-				var regoJson = JSON.parse(resBody);
-				var index = -1;
-
-				regos.forEach(function (rego) {
-					if (rego.registration.registrationNumber === req.param('rego')) {
-						index = regos.indexOf(rego);
-					}
-				});
-
-				if (index > -1) {
-					regos.splice(index, 1);
-				}
-
-				regos.push(regoJson);
-				deferred.resolve();
-			});
-
-			promises.push(deferred.promise);
-		});
-
-		when.all(promises).then(function () {
-			console.log('All get requests complete');
-			console.log(regos);
-			res.render('index.html', {
-				regos: regos
-			});
+			if (body) {
+				var json = JSON.parse(body);
+				res.send(json.status);
+			}
 		});
 	});
 

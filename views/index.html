@@ -8,7 +8,7 @@
 		    <div class='page-header'>
 		        <h2>RMS Renewal Online <small>Officer Home</small></h2>
 		    </div>
-		  	<div class="panel panel-default">
+		  	<div class="panel panel-info">
 		  		<div class="panel-heading clearfix">
 		  			<div class="panel-title pull-left"><h3>Renewals</h3></div>
 		  			<div class="pull-right">
@@ -20,16 +20,18 @@
 					  	<% regos.forEach(function(rego) { %>
 					  	<tr>
 					  		<td><a href="/renewal/<%= rego.registration.registrationNumber %>"><%= rego.registration.registrationNumber %></a><td>
-					  		<td><%= rego.status %></td>
+					  		<td rnum="<%=rego.registration.registrationNumber%>"><%= rego.status %></td>
 					  		<td align="right"><div class="btn-group" role="group">
 					  			<button id="auto-check-<%= rego.registration.registrationNumber %>"
 						  			rnum="<%=rego.registration.registrationNumber%>"
 						  			lname="<%=rego.registration.driver.lastName%>"
 						  			fname="<%=rego.registration.driver.firstName %>"
-						  			type="button" class="btn btn-default btn-xs">
+						  			type="button" class="btn btn-default btn-xs"
+                                    <% if (rego.status !== 'requested') {%> disabled <% } %>>
 								  <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
 								</button>
-								<button id="update-status-<%= rego.registration.registrationNumber %>" type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#status-update-modal">
+								<button id="update-status-<%= rego.registration.registrationNumber %>" type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#status-update-modal"
+                                <% if (rego.status === 'archived' || rego.status === 'paid' || rego.status === 'cancelled' || rego.status === 'created') {%> disabled <% } %>>
 								  <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
 								</button>
 							</div></td>
@@ -86,6 +88,10 @@
 		</div>
 		<% include template/footer.html %>
 		<script>
+            $('form').submit(function () {
+                location.reload();
+            });
+
 			$('button').click(function () {
 				var target = $(this).attr('id');
 				if (typeof target != 'undefined' && target === 'renewals') {
@@ -94,10 +100,11 @@
 						location.reload();
 					});
 				} else if (typeof target != 'undefined' && target.includes('auto-check')) {
+                    var rnum = $(this).attr('rnum');
                     $.post('/autocheck/' + $(this).attr('rnum'), function (data) {
-                        $('body').html(data);
-                        location.reload();
+                        $('td[rnum=' + rnum + ']').text(data);
                     });
+
 					var lname = $(this).attr('lname');
 					var fname = $(this).attr('fname');
 					var rnum = $(this).attr('rnum');
@@ -113,53 +120,52 @@
 						type: "POST",
 						url: "/autocheck",
 						data: data,
-	            dataType: "json",
-	            success: function(data, status, req){
-	            	
-	            	xmlDoc = $.parseXML(data.body);
-	            	result = $(xmlDoc).find("result").text();
+        	            dataType: "json",
+        	            success: function(data, status, req) {
 
-	            	results = {
-		            	'GSCheck' : $(xmlDoc).find("GSCheck").text(),
-		            	'AgeCheck' : $(xmlDoc).find("AgeCheck").text(),
-		            	'PSCheck' : $(xmlDoc).find("PSCheck").text()
-		            }
+        	            	xmlDoc = $.parseXML(data.body);
+        	            	result = $(xmlDoc).find("result").text();
 
-	            	details = "";
+        	            	results = {
+        		            	'GSCheck' : $(xmlDoc).find("GSCheck").text(),
+        		            	'AgeCheck' : $(xmlDoc).find("AgeCheck").text(),
+        		            	'PSCheck' : $(xmlDoc).find("PSCheck").text()
+        		            }
 
-	            	for (var key in results) {
-	            		if(results[key]){
-	            			details += key + ' : ' + results[key] + '\n';
-	            		}          		
-	            	}
+        	            	details = "";
 
-	            	details += "Output closed"
+        	            	for (var key in results) {
+        	            		if(results[key]){
+        	            			details += key + ' : ' + results[key] + '\n';
+        	            		}          		
+        	            	}
 
-	            	console.log(details);
-	            	console.log(result);
-	            	
-                if (result === 'Accept') {
-                    $('#status[value=accept]').attr('checked','');
-                    $('#status[value=reject]').attr('disabled', 'disabled');
-                    $('#status[value=accept]').click();
-                } else if (result === 'Reject') {
-                    $('#status[value=reject]').attr('checked','');
-                    $('#status[value=accept]').attr('disabled', 'disabled');
-                    $('#status[value=reject]').click();
-                    $('#rejection-reason').val(details);
-                } else if (result === 'Error') {
-                    $('#error-message').text(details);
-                    $('#rejection-reason').val(details);
-                }
-                
-                $('#error-message').text(details).wrap('<pre />');
+        	            	details += "Output closed\n\n" + result;
 
-	            },
+        	            	console.log(details);
+        	            	console.log(result);
+        	            	
+                            if (result === 'Accept') {
+                                $('#status[value=accept]').attr('checked','');
+                                $('#status[value=reject]').attr('disabled', 'disabled');
+                                $('#status[value=accept]').click();
+                            } else if (result === 'Reject') {
+                                $('#status[value=reject]').attr('checked','');
+                                $('#status[value=accept]').attr('disabled', 'disabled');
+                                $('#status[value=reject]').click();
+                                $('#rejection-reason').val(details);
+                            } else if (result === 'Error') {
+                                $('#error-message').text(details);
+                                $('#rejection-reason').val(details);
+                            }
+                            
+                            $('#error-message').text(details).wrap('<pre />');
+
+        	            },
 					  	error: function(data, status, req) {
 					  		console.log(data);
 					  	}
-					});					
-
+					});
 				} else if (typeof target != 'undefined' && target.includes('update-status')) {
 					var regoId = target.match(/status-(.*)/)[1];
 					$('#accept').hide();
