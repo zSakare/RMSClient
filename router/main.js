@@ -185,7 +185,7 @@ module.exports = function(app) {
 
 		var buffer = "";
 
-		var req = http.request({
+		var httpReq = http.request({
 	    host: "localhost",
 	    path: "/ode/processes/AutoCheck",
 	    port: 6060,
@@ -203,14 +203,47 @@ module.exports = function(app) {
 		  });
 		});
 
-		req.on('error', function(e) {
+		httpReq.on('error', function(e) {
  		  console.log('problem with request: ' + e.stack);
 		});
 
-		req.write(body);
-		req.end();
+		httpReq.write(body);
+		httpReq.end();
 	});
 
+	app.post('/autocheck/:rego', function (req, res) {
+		var promises = [];
+		request.put('http://localhost:8080/RMSRestfulService/renewal/notice/update?rego=' + req.param('rego') + '&status=UNDER_REVIEW', function (err, httpResponse, body) {
+			var deferred = when.defer();
+			request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + req.param('rego'), function (err, httpResponse, resBody) {
+				var regoJson = JSON.parse(resBody);
+				var index = -1;
+
+				regos.forEach(function (rego) {
+					if (rego.registration.registrationNumber === req.param('rego')) {
+						index = regos.indexOf(rego);
+					}
+				});
+
+				if (index > -1) {
+					regos.splice(index, 1);
+				}
+
+				regos.push(regoJson);
+				deferred.resolve();
+			});
+
+			promises.push(deferred.promise);
+		});
+
+		when.all(promises).then(function () {
+			console.log('All get requests complete');
+			console.log(regos);
+			res.render('index.html', {
+				regos: regos
+			});
+		});
+	});
 
 	app.get('/check/payment/:rego', function (req, res) {
 		request.get('http://localhost:8080/RMSRestfulService/payment/check?rego=' + req.param('rego'), function (err, httpResponse, body) {

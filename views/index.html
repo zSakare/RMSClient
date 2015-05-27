@@ -93,6 +93,11 @@
 						location.reload();
 					});
 				} else if (target.includes('auto-check')) {
+                    $.post('/autocheck/' + $(this).attr('rnum'), function (data) {
+                        $('body').html(data);
+                        location.reload();
+                    });
+
 					var lname = $(this).attr('lname');
 					var fname = $(this).attr('fname');
 					var rnum = $(this).attr('rnum');
@@ -134,7 +139,7 @@
                             } else if (result === 'Error') {
                                 $('#error-message').text(details);
                             }
-                            
+
                             $('#error-message').text(details);
 			            },
 					  	error: function(data, status, req) {
