@@ -150,12 +150,17 @@ module.exports = function(app) {
 
 	app.post('/delete/:rego', function (req, res) {
 		request.del('http://localhost:8080/RMSRestfulService/renewal/notice/archive?rego=' + req.param('rego'), function (err, httpResponse, body) {
-			console.log('boom');
-			res.render('renewal_archived.html');
+			var responseMessage = 'Renewal archived!';
+			if (httpResponse.statusCode == 304) {
+				responseMessage = 'Renewal cannot be archived in the current process.';
+			}
+			res.render('renewal_archived.html', {
+				message : responseMessage
+			});
 		});
 	});
 
-	app.post('/pay/:rego', function (req, res) {
-		
+	app.post('/pay', function (req, res) {
+		console.log(req.body);
 	});
 }

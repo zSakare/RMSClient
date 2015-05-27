@@ -33,7 +33,68 @@
 				<button id="process" class="btn btn-primary" role="button">Process Renewal</button>
 				<button id="cancel" class="btn btn-default" role="button">Cancel Renewal</button>
 				<button id="delete" class="btn btn-default" role="button">Delete Renewal</button>
-				<button id="pay" class="btn btn-primary" role="button">Pay Renewal</button>
+				<button id="pay" class="btn btn-primary" role="button" data-toggle="modal" data-target="#pay-modal">Pay Renewal</button>
+			</div>
+			<div id="pay-modal" class="modal fade" role="dialog">
+				<div class="modal-dialog">
+					<!-- Modal content-->
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">Make a Payment</h4>
+						</div>
+						<div class="modal-body">
+							<form action="/pay" method="post">
+								<div id="pay-group" class="form-group">
+								    <label for="cc-number">Credit Card Details</label>
+								    <div class="input-group">
+								    	<input type="text" class="form-control" name="cc-number" id="cc-number" placeholder="Credit card number" maxlength="16">
+								    </div>
+								    <label for="cc-name">Name on Cardholder</label>
+								    <div class="input-group">
+								    	<input type="text" class="form-control" name="cc-name" id="cc-name" placeholder="Cardholder">
+								    </div>
+									<label class="control-label" for="expiry-month">Expiration Date</label>
+									<select class="form-control" name="expiry-month" id="expiry-month">
+										<option>Month</option>
+										<option value="01">Jan (01)</option>
+										<option value="02">Feb (02)</option>
+										<option value="03">Mar (03)</option>
+										<option value="04">Apr (04)</option>
+										<option value="05">May (05)</option>
+										<option value="06">June (06)</option>
+										<option value="07">July (07)</option>
+										<option value="08">Aug (08)</option>
+										<option value="09">Sep (09)</option>
+										<option value="10">Oct (10)</option>
+										<option value="11">Nov (11)</option>
+										<option value="12">Dec (12)</option>
+									</select>
+									<select class="form-control" name="expiry-year">
+										<option value="15">2015</option>
+										<option value="16">2016</option>
+										<option value="17">2017</option>
+										<option value="18">2018</option>
+										<option value="19">2019</option>
+										<option value="20">2020</option>
+										<option value="21">2021</option>
+										<option value="22">2022</option>
+										<option value="23">2023</option>
+										<option value="24">2024</option>
+										<option value="25">2025</option>
+										<option value="26">2026</option>
+									</select>
+								</div>
+								<input type="hidden" name="rego" id="form-rego">
+								<input id="submit-payment" type="submit" class="btn btn-primary" value="Submit">
+							</form>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+
+				</div>
 			</div>
 		</div>
 		<% include template/footer.html %>
@@ -53,10 +114,34 @@
 						$('body').html(data);
 					});
 				} else if (target === 'pay') {
-					// open payment modal with cc details.
-					// $.post('/pay' + $('#rego').text(), function (data) {
-					// 	$('body').html(data);
-					// })
+					$('#pay-modal').find('#form-rego').val($('#rego').text());
+				}
+			});
+
+			$(function () {
+				var status = $('#status').text();
+				if (status === 'created') {
+					$('#delete').attr('disabled', 'disabled');
+					$('#pay').attr('disabled', 'disabled');
+				} else if (status === 'under-review' || status === 'archived') {
+					$('#delete').attr('disabled', 'disabled');
+					$('#pay').attr('disabled', 'disabled');
+					$('#process').attr('disabled', 'disabled');
+					$('#cancel').attr('disabled', 'disabled');
+				} else if (status === 'rejected') {
+					$('#pay').attr('disabled', 'disabled');
+					$('#process').attr('disabled', 'disabled');
+				} else if (status === 'accepted') {
+					$('#delete').attr('disabled', 'disabled');
+					$('#process').attr('disabled', 'disabled');
+				} else if (status === 'requested') {
+					$('#delete').attr('disabled', 'disabled');
+					$('#process').attr('disabled', 'disabled');
+					$('#pay').attr('disabled', 'disabled');
+				} else if (status === 'cancelled') {
+					$('#pay').attr('disabled', 'disabled');
+					$('#process').attr('disabled', 'disabled');
+					$('#cancel').attr('disabled', 'disabled');
 				}
 			});
 		</script>
