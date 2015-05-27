@@ -37,6 +37,8 @@
 					  	<% }); %>
 				  	</tbody>
 			  	</table>
+                <div id="error-message">
+                </div>
 			</div>
 			<div id="status-update-modal" class="modal fade" role="dialog">
 				<div class="modal-dialog">
@@ -97,30 +99,47 @@
 					var result = "";
 
 					data = {
-						"lname" : "as",
+						"lname" : lname,
 						"fname" : fname,
 						"rnum" : rnum
 					}
 
 					$.ajax({
-					  type: "POST",
-					  url: "/autocheck",
-					  data: data,
-            dataType: "json",
-            success: function(data, status, req){
-            	
-            	xmlDoc = $.parseXML(data.body);
-            	result = $(xmlDoc).find("result").text();
-            	details = 'GSCheck : ' + $(xmlDoc).find("GSCheck").text() + '\n' + 
-            				  	'AgeCheck: ' + $(xmlDoc).find("AgeCheck").text() + '\n' + 
-            				  	'PSCheck: ' + $(xmlDoc).find("PSCheck").text();
+						type: "POST",
+						url: "/autocheck",
+						data: data,
+			            dataType: "json",
+			            success: function(data, status, req){
+			            	
+			            	xmlDoc = $.parseXML(data.body);
+			            	result = $(xmlDoc).find("result").text();
+			            	details = 'GSCheck: ' + $(xmlDoc).find("GSCheck").text() + '\n' + 
+			            				  	'AgeCheck: ' + $(xmlDoc).find("AgeCheck").text() + '\n' + 
+			            				  	'PSCheck: ' + $(xmlDoc).find("PSCheck").text();
 
-            	console.log(details);
-            	console.log(result);
-            },
-					  error: function(data, status, req){
-					  	console.log(data);
-					  }
+			            	console.log(details);
+			            	console.log(result);
+
+                            if (result === 'Accept') {
+                                $('#status[value=accept]').attr('checked');
+                                $('#status[value=reject]').attr('disabled', 'disabled');
+                                $('#accept').show();
+                                $('#reject').hide();
+                            } else if (result === 'Reject') {
+                                $('#status[value=reject]').attr('checked');
+                                $('#status[value=accept]').attr('disabled', 'disabled');
+                                $('#reject').show();
+                                $('#accept').hide();
+                                $('#rejection-reason').val(details);
+                            } else if (result === 'Error') {
+                                $('#error-message').text(details);
+                            }
+                            
+                            $('#error-message').text(details);
+			            },
+					  	error: function(data, status, req) {
+					  		console.log(data);
+					  	}
 					});					
 
 				} else if (target.includes('update-status')) {
