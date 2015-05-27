@@ -13,7 +13,7 @@ var transporter = nodemailer.createTransport({
 });
 
 module.exports = function(app) {
-	app.get('/', function(req,res) {
+	app.get('/', function (req,res) {
 		var newRegos = [];
 		var promises = [];
 
@@ -37,6 +37,18 @@ module.exports = function(app) {
 		});
 	});
 
+	app.get('/filter/:status', function (req, res) {
+		var regosToShow = [];
+		regos.forEach(function (rego) {
+			if (rego.status === req.param('status')) {
+				regosToShow.push(rego);
+			}
+		});
+		res.render('index.html', {
+			regos: regosToShow
+		});
+	});
+
 	app.get('/renewals', function (req, res) {
 		request.post('http://localhost:8080/RMSRestfulService/renewal/notice/generate', function (err, httpResponse, body) {
 			regos = [];
@@ -45,7 +57,6 @@ module.exports = function(app) {
 			var promises = [];
 			json.forEach(function (url) {
 				var regoId = url.match(/rego=(.*)/)[1];
-				//regoIds.push([regoId, ]);
 				var deferred = when.defer();
 				request.get('http://localhost:8080/RMSRestfulService/renewal/notice?rego=' + regoId, function (err, httpResponse, resBody) {
 					var regoJson = JSON.parse(resBody);

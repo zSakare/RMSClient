@@ -15,7 +15,32 @@
 		  				<button id="renewals" type="button" class="btn btn-default">Generate Renewals</button>
 					</div>
 				</div>
+                <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-expanded="true">
+                    Filter By
+                    <span class="caret"></span>
+                </button>
+                    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">All</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Created</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Cancelled</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Requested</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Under-review</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Accepted</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Archived</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Paid</a></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Rejected</a></li>
+                    </ul>
+                </div>
 			  	<table class="table table-default">
+                    <thead>
+                        <tr>
+                            <th>Registration Number</th>
+                            <th></th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
 			  		<tbody>
 					  	<% regos.forEach(function(rego) { %>
 					  	<tr>
@@ -192,6 +217,15 @@
 					$('#accept').hide();
 				}
 			});
+
+            $('li a').click(function () {
+                var status = $(this).text().toLowerCase();
+                if (status === 'all') {
+                    window.location.replace('http://localhost:3000/');
+                } else {
+                    window.location.replace('http://localhost:3000/filter/' + status);
+                }
+            });
 
 		</script>
 	</body>
