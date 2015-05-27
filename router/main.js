@@ -161,6 +161,12 @@ module.exports = function(app) {
 	});
 
 	app.post('/pay', function (req, res) {
-		console.log(req.body);
+		request.put('http://localhost:8080/RMSRestfulService/payment/pay?rego=' + req.body.rego 
+																				+ '&name=' + req.body.name 
+																				+ '&expiry=' + req.body.expiry 
+																				+ '&number=' + req.body.number, 
+		function (err, httpResponse, body) {
+			
+		})
 	});
 }
