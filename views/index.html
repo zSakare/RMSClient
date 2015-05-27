@@ -94,6 +94,10 @@
 						location.reload();
 					});
 				} else if (typeof target != 'undefined' && target.includes('auto-check')) {
+                    $.post('/autocheck/' + $(this).attr('rnum'), function (data) {
+                        $('body').html(data);
+                        location.reload();
+                    });
 					var lname = $(this).attr('lname');
 					var fname = $(this).attr('fname');
 					var rnum = $(this).attr('rnum');
@@ -109,47 +113,48 @@
 						type: "POST",
 						url: "/autocheck",
 						data: data,
-			            dataType: "json",
-			            success: function(data, status, req){
-			            	
-			            	xmlDoc = $.parseXML(data.body);
-			            	result = $(xmlDoc).find("result").text();
+	            dataType: "json",
+	            success: function(data, status, req){
+	            	
+	            	xmlDoc = $.parseXML(data.body);
+	            	result = $(xmlDoc).find("result").text();
 
-			            	results = {
-				            	'GSCheck' : $(xmlDoc).find("GSCheck").text(),
-				            	'AgeCheck' : $(xmlDoc).find("AgeCheck").text(),
-				            	'PSCheck' : $(xmlDoc).find("PSCheck").text()
-				            }
+	            	results = {
+		            	'GSCheck' : $(xmlDoc).find("GSCheck").text(),
+		            	'AgeCheck' : $(xmlDoc).find("AgeCheck").text(),
+		            	'PSCheck' : $(xmlDoc).find("PSCheck").text()
+		            }
 
-			            	details = "";
+	            	details = "";
 
-			            	for (var key in results) {
-			            		if(results[key]){
-			            			details += key + ' : ' + results[key] + '\n';
-			            		}          		
-			            	}
+	            	for (var key in results) {
+	            		if(results[key]){
+	            			details += key + ' : ' + results[key] + '\n';
+	            		}          		
+	            	}
 
-			            	details += "Output closed"
+	            	details += "Output closed"
 
-			            	console.log(details);
-			            	console.log(result);
+	            	console.log(details);
+	            	console.log(result);
+	            	
+                if (result === 'Accept') {
+                    $('#status[value=accept]').attr('checked','');
+                    $('#status[value=reject]').attr('disabled', 'disabled');
+                    $('#status[value=accept]').click();
+                } else if (result === 'Reject') {
+                    $('#status[value=reject]').attr('checked','');
+                    $('#status[value=accept]').attr('disabled', 'disabled');
+                    $('#status[value=reject]').click();
+                    $('#rejection-reason').val(details);
+                } else if (result === 'Error') {
+                    $('#error-message').text(details);
+                    $('#rejection-reason').val(details);
+                }
+                
+                $('#error-message').text(details).wrap('<pre />');
 
-                    if (result === 'Accept') {
-                        $('#status[value=accept]').attr('checked','');
-                        $('#status[value=reject]').attr('disabled', 'disabled');
-                        $('#status[value=accept]').click();
-                    } else if (result === 'Reject') {
-                        $('#status[value=reject]').attr('checked','');
-                        $('#status[value=accept]').attr('disabled', 'disabled');
-                        $('#status[value=reject]').click();
-                        $('#rejection-reason').val(details);
-                    } else if (result === 'Error') {
-                        $('#error-message').text(details);
-                        $('#rejection-reason').val(details);
-                    }
-                    
-                    $('#error-message').text(details).wrap('<pre />');
-			            },
+	            },
 					  	error: function(data, status, req) {
 					  		console.log(data);
 					  	}
