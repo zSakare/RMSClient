@@ -28,6 +28,7 @@
 			  	</div>
 			  	<div id="rego" style="display: none"><%= renewal.registration.registrationNumber %></div>
 			  	<div id="status" style="display: none"><%= renewal.status %></div>
+			  	<div id="last-registered" style="display: none"><%= renewal.registration.lastRegistered %></div>
 			</div>
 			<div class="btn-group">
 				<button id="process" class="btn btn-primary" role="button">Process Renewal</button>
@@ -46,16 +47,21 @@
 						<div class="modal-body">
 							<form action="/pay" method="post">
 								<div id="pay-group" class="form-group">
+									<label for="payment-fee">Fee</label>
+									<div class="input-group">
+      									<div class="input-group-addon">$</div>
+										<input type="text" class="form-control" name="payment-fee" id="payment-fee" disabled="disabled">
+									</div>
 								    <label for="cc-number">Credit Card Details</label>
 								    <div class="input-group">
-								    	<input type="text" class="form-control" name="cc-number" id="cc-number" placeholder="Credit card number" maxlength="16">
+								    	<input type="text" class="form-control" name="ccNumber" id="cc-number" placeholder="Credit card number" maxlength="16">
 								    </div>
 								    <label for="cc-name">Name on Cardholder</label>
 								    <div class="input-group">
-								    	<input type="text" class="form-control" name="cc-name" id="cc-name" placeholder="Cardholder">
+								    	<input type="text" class="form-control" name="ccName" id="cc-name" placeholder="Cardholder">
 								    </div>
-									<label class="control-label" for="expiry-month">Expiration Date</label>
-									<select class="form-control" name="expiry-month" id="expiry-month">
+									<label class="control-label" for="ccExpiryMonth">Expiration Date</label>
+									<select class="form-control" name="ccExpiryMonth" id="expiry-month">
 										<option>Month</option>
 										<option value="01">Jan (01)</option>
 										<option value="02">Feb (02)</option>
@@ -70,7 +76,7 @@
 										<option value="11">Nov (11)</option>
 										<option value="12">Dec (12)</option>
 									</select>
-									<select class="form-control" name="expiry-year">
+									<select class="form-control" name="ccExpiryYear">
 										<option value="15">2015</option>
 										<option value="16">2016</option>
 										<option value="17">2017</option>
@@ -114,6 +120,9 @@
 						$('body').html(data);
 					});
 				} else if (target === 'pay') {
+					$.get('/check/payment/' + $('#rego').text(), function (data) {
+						$('#payment-fee').val(data);
+					});
 					$('#pay-modal').find('#form-rego').val($('#rego').text());
 				}
 			});
@@ -139,6 +148,10 @@
 					$('#process').attr('disabled', 'disabled');
 					$('#pay').attr('disabled', 'disabled');
 				} else if (status === 'cancelled') {
+					$('#pay').attr('disabled', 'disabled');
+					$('#process').attr('disabled', 'disabled');
+					$('#cancel').attr('disabled', 'disabled');
+				} else if (status === 'paid') {
 					$('#pay').attr('disabled', 'disabled');
 					$('#process').attr('disabled', 'disabled');
 					$('#cancel').attr('disabled', 'disabled');

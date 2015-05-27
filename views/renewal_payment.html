@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<% include template/header.html %>
+	</head>
+	<body>
+		<div class="container">
+			<div class="page-header">
+		        <div class="btn-toolbar pull-right">
+		            <div class="btn-group">
+		                <a href="/" id="driver" type="button" class="btn btn-primary">Officer</a>
+		            </div>
+		        </div>
+				<h2>RMS Renewal Online <small>Driver Payment Details</small></h2>
+			</div>
+		  	<div class="panel panel-default">
+		  		<div class="panel-heading"><h3>Renewal <small>- <%= payment.renewal.registration.registrationNumber %></small></h3></div>
+			  	<div class="panel-body">
+			  		<h3>Registration:</h3>
+			  		<p><b>Valid Until:</b> <%= payment.renewal.registration.validTill %></p>
+			  		<p><b>Last Registered:</b> <%= payment.renewal.registration.lastRegistered %></p>
+			  		<p><b>Status:</b> <%= payment.renewal.status %></p>
+			  		<br>
+			  		<h3>Driver:</h3>
+			  		<p><b>Name:</b> <%= payment.renewal.registration.driver.firstName %> <%= payment.renewal.registration.driver.lastName %></p>
+			  		<p><b>License Number:</b> <%= payment.renewal.registration.driver.licenseNumber %></p>
+			  		<p><b>Email:</b> <%= payment.renewal.registration.driver.email %></p>
+			  		<br>
+			  		<h3>Payment:</h3>
+			  		<p><b>Credit Card Number:</b> <%= payment.ccNumber %></p>
+			  		<p><b>Cardholder Name:</b> <%= payment.ccName %></p>
+			  		<p><b>Credit Card Expiry:</b> <%= payment.ccExpiry %></p>
+			  		<p><b>Date Last Paid:</b> <%= payment.paidDate %></p>
+			  		<p><b>Fee:</b> $<%= payment.amount %></p>
+			  	</div>
+			</div>
+			<a href="/driver/<%= payment.renewal.registration.registrationNumber %>" class="btn btn-primary" role="button">Back</a>
+		</div>
+		<% include template/footer.html %>
+		<script>
+		</script>
+	</body>
+</html>
