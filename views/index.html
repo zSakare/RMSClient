@@ -23,10 +23,10 @@
 					  		<td><%= rego.status %></td>
 					  		<td align="right"><div class="btn-group" role="group">
 					  			<button id="auto-check-<%= rego.registration.registrationNumber %>"
-					  			rnum="<%=rego.registration.registrationNumber%>"
-					  			lname="<%=rego.registration.driver.lastName%>"
-					  			fname="<%=rego.registration.driver.firstName %>"
-					  			type="button" class="btn btn-default btn-xs">
+						  			rnum="<%=rego.registration.registrationNumber%>"
+						  			lname="<%=rego.registration.driver.lastName%>"
+						  			fname="<%=rego.registration.driver.firstName %>"
+						  			type="button" class="btn btn-default btn-xs">
 								  <span class="glyphicon glyphicon-play" aria-hidden="true"></span>
 								</button>
 								<button id="update-status-<%= rego.registration.registrationNumber %>" type="button" class="btn btn-default btn-xs" data-toggle="modal" data-target="#status-update-modal">
@@ -94,7 +94,34 @@
 					var lname = $(this).attr('lname');
 					var fname = $(this).attr('fname');
 					var rnum = $(this).attr('rnum');
-					
+					var result = "";
+
+					data = {
+						"lname" : "as",
+						"fname" : fname,
+						"rnum" : rnum
+					}
+
+					$.ajax({
+					  type: "POST",
+					  url: "/autocheck",
+					  data: data,
+            dataType: "json",
+            success: function(data, status, req){
+            	
+            	xmlDoc = $.parseXML(data.body);
+            	result = $(xmlDoc).find("result").text();
+            	details = 'GSCheck : ' + $(xmlDoc).find("GSCheck").text() + '\n' + 
+            				  	'AgeCheck: ' + $(xmlDoc).find("AgeCheck").text() + '\n' + 
+            				  	'PSCheck: ' + $(xmlDoc).find("PSCheck").text();
+
+            	console.log(details);
+            	console.log(result);
+            },
+					  error: function(data, status, req){
+					  	console.log(data);
+					  }
+					});					
 
 				} else if (target.includes('update-status')) {
 					var regoId = target.match(/status-(.*)/)[1];

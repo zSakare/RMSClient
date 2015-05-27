@@ -2,6 +2,7 @@ var request = require('request');
 var when = require('when');
 var nodemailer = require('nodemailer');
 var regos = [];
+var http = require('http');
 
 var transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -169,4 +170,48 @@ module.exports = function(app) {
 			});
 		})
 	});
+
+	app.post('/autocheck', function (req, res) {
+		var body = 				
+			'<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:aut="http://autocheck.soacourse.unsw.edu.au">' +
+			'  <soapenv:Header/>' +
+			'  <soapenv:Body>' +
+			'    <aut:AutoCheckRequest>' +
+			'      <aut:LastName>' + req.body.lname + '</aut:LastName>' +
+			'      <aut:FirstName>' + req.body.fname + '</aut:FirstName>' +
+			'      <aut:RegoNumber>' + req.body.rnum + '</aut:RegoNumber>' +
+			'    </aut:AutoCheckRequest>' +
+			'  </soapenv:Body>' +
+			'</soapenv:Envelope>';
+
+		var buffer = "";
+
+		var req = http.request({
+	    host: "localhost",
+	    path: "/ode/processes/AutoCheck",
+	    port: 6060,
+	    method: "POST",
+	    headers: {
+	    		'SOAPAction': 'http://autocheck.soacourse.unsw.edu.au/AutoCheck',
+	        'Content-Type': 'text/xml;charset=UTF-8',
+	        'Content-Length': Buffer.byteLength(body)
+	    }
+		}, function(response) {
+		  var buffer = "";
+		  response.on("data", function( data ) { buffer = buffer + data; } );
+		  response.on("end", function( data ) { 
+		  	res.send({"body" :buffer});
+		  });
+		});
+
+		req.on('error', function(e) {
+ 		  console.log('problem with request: ' + e.stack);
+		});
+
+		req.write(body);
+		req.end();
+	});
+
+
+	
 }
